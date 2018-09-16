@@ -12,7 +12,7 @@ public class JDProductPageProcessor implements PageProcessor {
 
     private Site site =
             Site.me().setRetryTimes(3).setSleepTime(1000)
-            .setUserAgent("Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/68.0.3440.106 Safari/537.36");
+                    .setUserAgent("Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/68.0.3440.106 Safari/537.36");
 
     @Override
     public void process(Page page) {
