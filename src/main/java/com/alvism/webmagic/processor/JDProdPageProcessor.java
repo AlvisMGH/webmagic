@@ -18,7 +18,11 @@ import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 /**
- * 京东商品列表数据爬虫
+ * 京东商品列表数据爬虫，基于WebMagic爬虫框架
+ * 该类需要借助Chrome浏览器的ChromeDriver驱动
+ * 可根据操作系统到网站http://npm.taobao.org/mirrors/chromedriver/下载对应的最新驱动
+ * Windows操作系统默认加载“C:\Windows\System32\chromedriver.exe”
+ * Linux操作系统默认加载“/usr/bin/chromedriver.sh”
  */
 @Slf4j
 @Component
@@ -49,7 +53,6 @@ public class JDProdPageProcessor implements PageProcessor, ApplicationRunner {
         try {
             Thread.sleep(3000);
         } catch (InterruptedException e) {
-            // TODO Auto-generated catch block
             e.printStackTrace();
         }
         WebElement webElement = driver.findElement(By.xpath("/html/body"));
