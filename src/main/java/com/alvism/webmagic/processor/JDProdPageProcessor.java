@@ -49,7 +49,6 @@ public class JDProdPageProcessor implements PageProcessor, ApplicationRunner {
         try {
             Thread.sleep(3000);
         } catch (InterruptedException e) {
-            // TODO Auto-generated catch block
             e.printStackTrace();
         }
         WebElement webElement = driver.findElement(By.xpath("/html/body"));
