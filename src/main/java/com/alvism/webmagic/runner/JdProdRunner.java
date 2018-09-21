@@ -20,7 +20,7 @@ public class JdProdRunner implements ApplicationRunner {
     public void run(ApplicationArguments args) throws Exception {
 
         List<String> keyWords = new ArrayList<>(30);
-        keyWords.add("移动电源");
+        keyWords.add("手机");
         /*keyWords.add("平板电视");
         keyWords.add("燃气灶");
         keyWords.add("料理机");
@@ -57,7 +57,7 @@ public class JdProdRunner implements ApplicationRunner {
         long begin = Clock.systemUTC().millis();
         log.info("开始时间为：" + LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
         for(String keyWord : keyWords){
-            size += JdProdPageProcessor.init(keyWord).run();
+            size += JdProdPageProcessor.init(keyWord, 100).run();
         }
         long end = Clock.systemUTC().millis();
         log.info("爬取结束：{}，共{}条数据，消耗{}秒", LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")), size, (end - begin) / 1000);
