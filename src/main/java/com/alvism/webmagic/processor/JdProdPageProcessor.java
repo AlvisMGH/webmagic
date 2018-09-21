@@ -26,7 +26,7 @@ import java.util.List;
  */
 @Slf4j
 @Component
-public class JdProdPageProcessor implements PageProcessor, ApplicationRunner {
+public class JdProdPageProcessor implements PageProcessor {
 
     private static final String URL = "https://search.jd.com/Search?keyword=%E9%9B%B6%E9%A3%9F&enc=utf-8&wq=%E9%9B%B6%E9%A3%9F&page=";
 
@@ -82,17 +82,6 @@ public class JdProdPageProcessor implements PageProcessor, ApplicationRunner {
     public Site getSite() {
         return Site.me().setRetryTimes(10).setSleepTime(1000)
                 .setUserAgent("Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/68.0.3440.106 Safari/537.36");
-    }
-
-    @Override
-    public void run(ApplicationArguments args) {
-        log.info("开始爬取京东商品列表数据...");
-        log.info("开始时间为：" + LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
-        Spider.create(new JdProdPageProcessor())
-                .addUrl(URL + 1)
-                .thread(5).run();
-        log.info("爬取京东商品列表数据结束");
-        log.info("结束时间为：" + LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
     }
 
 }
