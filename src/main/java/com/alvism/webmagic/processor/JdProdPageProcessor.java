@@ -69,7 +69,7 @@ public class JdProdPageProcessor implements PageProcessor, BasePageProcessor {
         if (url.startsWith(DETAIL_DOMAIN)) { //判断是否为详情页
 
             //商品编号
-            String prodNum = html.xpath("*[@id='detail']/div[2]/div[1]/div[1]/ul[3]/li[2]/@title").get();
+            String prodNum = html.xpath("//*[@id='detail']/div[2]/div[1]/div[1]/ul[3]/li[2]/@title").get();
             //商品名称
             String prodName = html.xpath("//*[@class='sku-name']/text()").get();
             //商品价格
