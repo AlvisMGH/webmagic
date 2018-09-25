@@ -66,24 +66,13 @@ public class TmProdPageProcessor implements PageProcessor, BasePageProcessor {
         //driver.executeScript("window.scrollTo(0, document.body.scrollHeight)");
         //滚动后，停留0.5s
         //ThreadUtil.sleep(500);
+        //获取HTML结构
+        Html html = new Html(driver.getPageSource());
 
         if (url.startsWith(DETAIL_DOMAIN)) { //判断是否为详情页
 
-            //关闭登录弹窗
-            /*String loginDialog = html.xpath("//*[@id='sufei-dialog-close']/text()").get();
-            System.out.println("loginDialog：" + loginDialog);*/
-            /*Actions actions = new Actions(driver);
-            actions.click(driver.findElement(By.xpath("//*[@id='sufei-dialog-close']")));*/
-
-            ThreadUtil.sleep(15000);
-
-            //获取HTML结构
-            Html html = new Html(driver.getPageSource());
-
-            System.out.println(html.get());
-
             //商品编号
-            String prodNum = html.xpath("//*[@id='J_DetailMeta']/div[1]/div[1]/div/div[1]/h1/@data-spm").get();
+            String prodNum = URLUtil.resolve(page.getUrl().toString()).getValue("id");
             //商品名称
             String prodName = html.xpath("//*[@id='J_DetailMeta']/div[1]/div[1]/div/div[1]/h1/a/text()").get();
             //商品价格
@@ -115,15 +104,14 @@ public class TmProdPageProcessor implements PageProcessor, BasePageProcessor {
             List<String> bigImg = thumb.parallelStream()
                     .map(str -> str.replace("_60x60q90.jpg", "")).collect(Collectors.toList());
             System.out.println("放大图片：" + bigImg);
+
             //详情图片
-            List<String> detail = html.xpath("//*[@id=\"description\"]/div/p/img/@src").all();
+            List<String> detail = html.xpath("//*[@id='description']/div/p[2]/img/@src").all();
             System.out.println("详情图片：" + detail);
 
             System.out.println();
 
         } else if (url.startsWith(SEARCH_DOMAIN)) { //判断是否为搜索页
-            //获取HTML结构
-            Html html = new Html(driver.getPageSource());
             List<String> detailUrls = html.xpath("//*[@id='J_ItemList']/div/div/*[@class='productTitle']/a[1]/@href").all();
             List<String> prodPrices = html.xpath("//*[@id='J_ItemList']/div/div/*[@class='productPrice']/em/text()").all();
             List<String> storeNames = html.xpath("//*[@id='J_ItemList']/div/div/*[@class='productShop']/a/text()").all();
@@ -193,7 +181,7 @@ public class TmProdPageProcessor implements PageProcessor, BasePageProcessor {
     public long run() {
         Spider.create(this)
                 .addUrl(TARGET_URL.replace("#Q", this.keyWord).replace("#S", String.valueOf(0)))
-                .thread(6)
+                .thread(1)
                 .run();
         driver.quit();
         return current;
