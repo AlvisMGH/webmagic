@@ -3,8 +3,10 @@ package com.alvism.webmagic.processor;
 import com.alvism.webmagic.util.ThreadUtil;
 import com.alvism.webmagic.util.URLUtil;
 import lombok.extern.slf4j.Slf4j;
+import org.openqa.selenium.By;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
+import org.openqa.selenium.interactions.Actions;
 import us.codecraft.webmagic.Page;
 import us.codecraft.webmagic.Site;
 import us.codecraft.webmagic.Spider;
@@ -12,10 +14,7 @@ import us.codecraft.webmagic.processor.PageProcessor;
 import us.codecraft.webmagic.selector.Html;
 import us.codecraft.webmagic.selector.Selectable;
 
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
@@ -67,79 +66,67 @@ public class TmProdPageProcessor implements PageProcessor, BasePageProcessor {
         //driver.executeScript("window.scrollTo(0, document.body.scrollHeight)");
         //滚动后，停留0.5s
         //ThreadUtil.sleep(500);
-        //获取HTML结构
-        Html html = new Html(driver.getPageSource());
 
         if (url.startsWith(DETAIL_DOMAIN)) { //判断是否为详情页
 
-            System.out.println("url:" + page.getUrl().get());
+            //关闭登录弹窗
+            /*String loginDialog = html.xpath("//*[@id='sufei-dialog-close']/text()").get();
+            System.out.println("loginDialog：" + loginDialog);*/
+            /*Actions actions = new Actions(driver);
+            actions.click(driver.findElement(By.xpath("//*[@id='sufei-dialog-close']")));*/
+
+            ThreadUtil.sleep(15000);
+
+            //获取HTML结构
+            Html html = new Html(driver.getPageSource());
+
+            System.out.println(html.get());
 
             //商品编号
             String prodNum = html.xpath("//*[@id='J_DetailMeta']/div[1]/div[1]/div/div[1]/h1/@data-spm").get();
             //商品名称
             String prodName = html.xpath("//*[@id='J_DetailMeta']/div[1]/div[1]/div/div[1]/h1/a/text()").get();
             //商品价格
-            //String prodPrice = html.xpath("//*[@id='J_PromoPrice']/dd/div/span/text()").get();
             String prodPrice = URLUtil.resolve(page.getUrl().toString()).getValue("prodPrice");
             //店铺名称
-            //String storeName = html.xpath("//*[@id='side-shop-info']/div/h3/div/a/text()").get();
             String storeName = URLUtil.resolve(page.getUrl().toString()).getValue("storeName");
-            /*//特殊处理苹果店铺名称，因为苹果详情页中没有店铺名称
-            Selectable selectable = html.regex("//apple.tmall.com/");
-            if (selectable.get() != null) {
-                storeName = "Apple Store 官方旗舰店";
-            }*/
             System.out.println(prodNum);
             System.out.println(prodName);
             System.out.println(prodPrice);
             System.out.println(storeName);
 
-            /*//商品属性
-            List<Selectable> prodAttrs = html.xpath("//*div[@id='choose-attrs']/div[@class='li p-choose']").nodes();
+            //商品属性
+            List<Selectable> prodAttrs = html.xpath("//*[@id='J_DetailMeta']/div[1]/div[1]/div/div[4]/div/div/dl[@class='tm-sale-prop']").nodes();
             if (prodAttrs != null && prodAttrs.size() > 0) {
                 for (Selectable prodAttr : prodAttrs) {
-                    System.out.println(prodAttr.xpath("//div[@class='dt']/text()").get() + "：" + prodAttr.xpath("//div[@class='dd']/div[@class='item']/@data-value").all());
+                    System.out.println(prodAttr.xpath("//dt/text()").get() + "：" + prodAttr.xpath("//dd/ul/li/a/span/text()").all());
                 }
-            }
-
-            //购买方式
-            Selectable prodType = html.xpath("//div[@id='choose-type']");
-            String prodTypeStyle = html.xpath("//div[@id='choose-type']/@style").get();
-            if (prodType != null && prodTypeStyle != null && !prodTypeStyle.contains("display:none")) {
-                System.out.println(prodType.xpath("//div[@class='dt']/text()").get() + "：" + prodType.xpath("//div[@class='dd']/div[@class='item']/a/text()").all());
-            }
-
-            //优惠套装
-            Selectable prodSuit = html.xpath("//div[@id='choose-suits']");
-            String prodSuitStyle = html.xpath("//div[@id='choose-suits']/@style").get();
-            if (prodSuit != null && prodSuitStyle != null && !prodSuitStyle.contains("display:none")) {
-                System.out.println(prodSuit.xpath("//div[@class='dt']/text()").get() + "：" + prodSuit.xpath("//div[@class='dd']/div[@class='item']/a/text()").all());
             }
 
             //商品图片
             //缩略图
-            List<String> thumb = html.xpath("//*[@id='spec-list']/ul/li/img/@src").all();
+            List<String> thumb = html.xpath("//*[@id='J_UlThumb']/li/a/img/@src").all();
             System.out.println("缩略图片：" + thumb);
             //标准图片
             List<String> img = thumb.parallelStream()
-                    .map(str -> str.replace("n5", "n1").replace("s54x54_jfs", "s450x450_jfs")).collect(Collectors.toList());
+                    .map(str -> str.replace("60x60", "430x430")).collect(Collectors.toList());
             System.out.println("标准图片：" + img);
             //放大图片
             List<String> bigImg = thumb.parallelStream()
-                    .map(str -> str.replace("n5", "n0").replace("s54x54_jfs", "jfs")).collect(Collectors.toList());
+                    .map(str -> str.replace("_60x60q90.jpg", "")).collect(Collectors.toList());
             System.out.println("放大图片：" + bigImg);
             //详情图片
-            List<String> detail = html.xpath("//*[@id='J-detail-content']//img/@data-lazyload").all();
-            System.out.println("详情图片：" + detail);*/
+            List<String> detail = html.xpath("//*[@id=\"description\"]/div/p/img/@src").all();
+            System.out.println("详情图片：" + detail);
 
             System.out.println();
 
         } else if (url.startsWith(SEARCH_DOMAIN)) { //判断是否为搜索页
-            //List<String> detailUrls = html.xpath("//div[@id='J_ItemList']/div/div/*[@class='productTitle']/a/@href").all();
+            //获取HTML结构
+            Html html = new Html(driver.getPageSource());
             List<String> detailUrls = html.xpath("//*[@id='J_ItemList']/div/div/*[@class='productTitle']/a[1]/@href").all();
             List<String> prodPrices = html.xpath("//*[@id='J_ItemList']/div/div/*[@class='productPrice']/em/text()").all();
             List<String> storeNames = html.xpath("//*[@id='J_ItemList']/div/div/*[@class='productShop']/a/text()").all();
-            //*[@id="J_ItemList"]/div[1]/div/div[3]/a
             if (detailUrls != null && detailUrls.size() > 0) {
                 //先将详情加入到待爬取列表中
                 String detailUrl;
@@ -170,11 +157,10 @@ public class TmProdPageProcessor implements PageProcessor, BasePageProcessor {
     @Override
     public Site getSite() {
         return Site.me()
-                .setRetryTimes(5)
+                .setRetryTimes(10)
                 .setSleepTime(100)
                 .setTimeOut(10000)
-                .setUserAgent("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/69.0.3497.100 Safari/537.36")
-                .setDisableCookieManagement(true);
+                .setUserAgent(UserAgentSupport.random());
     }
 
     /**
