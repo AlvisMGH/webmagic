@@ -1,6 +1,6 @@
 package com.alvism.webmagic.runner;
 
-import com.alvism.webmagic.processor.TmProdPageProcessor;
+import com.alvism.webmagic.processor.AlibabaProdPageProcessor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
@@ -13,14 +13,14 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Slf4j
-//@Component
-public class TmProdRunner implements ApplicationRunner {
+@Component
+public class AlibabaProdRunner implements ApplicationRunner {
 
     @Override
     public void run(ApplicationArguments args) throws Exception {
 
         List<String> keyWords = new ArrayList<>(30);
-        keyWords.add("手机");
+        keyWords.add("%CA%D6%BB%FA");
         /*keyWords.add("平板电视");
         keyWords.add("燃气灶");
         keyWords.add("料理机");
@@ -53,11 +53,11 @@ public class TmProdRunner implements ApplicationRunner {
 
         long size = 0;
 
-        log.info("开始爬取天猫商品列表数据...");
+        log.info("开始爬取阿里巴巴商品列表数据...");
         long begin = Clock.systemUTC().millis();
         log.info("开始时间为：" + LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
         for(String keyWord : keyWords){
-            size += TmProdPageProcessor.init(keyWord, 100).run();
+            size += AlibabaProdPageProcessor.init(keyWord, 100).run();
         }
         long end = Clock.systemUTC().millis();
         log.info("爬取结束：{}，共{}条数据，消耗{}秒", LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")), size, (end - begin) / 1000);
