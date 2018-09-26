@@ -36,8 +36,6 @@ public class TbProdPageProcessor implements PageProcessor, BasePageProcessor {
     private String keyWord;
     //谷歌浏览器参数
     private static ChromeOptions options;
-    //谷歌浏览器驱动
-    private ChromeDriver driver;
     //当前数量
     private long current;
     //爬取数量
@@ -49,13 +47,10 @@ public class TbProdPageProcessor implements PageProcessor, BasePageProcessor {
         options.addArguments("headless", "disable-gpu");
     }
 
-    {
-        //创建驱动
-        driver = new ChromeDriver(options);
-    }
-
     @Override
     public void process(Page page) {
+        //创建谷歌浏览器驱动
+        ChromeDriver driver = new ChromeDriver(options);
         String url = page.getUrl().get();
         //打开URL
         driver.get(url);
@@ -204,7 +199,7 @@ public class TbProdPageProcessor implements PageProcessor, BasePageProcessor {
                 }
             }
         }
-
+        driver.quit();
     }
 
     @Override
@@ -248,7 +243,6 @@ public class TbProdPageProcessor implements PageProcessor, BasePageProcessor {
                 .addUrl(TARGET_URL.replace("#Q", this.keyWord).replace("#S", String.valueOf(0)))
                 .thread(6)
                 .run();
-        driver.quit();
         return current;
     }
 

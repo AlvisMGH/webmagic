@@ -2,6 +2,7 @@ package com.alvism.webmagic.processor;
 
 import com.alvism.webmagic.util.URLUtil;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
 import us.codecraft.webmagic.Page;
@@ -34,8 +35,6 @@ public class AlibabaProdPageProcessor implements PageProcessor, BasePageProcesso
     private String keyWord;
     //谷歌浏览器参数
     private static ChromeOptions options;
-    //谷歌浏览器驱动
-    private ChromeDriver driver;
     //当前数量
     private long current;
     //爬取数量
@@ -47,13 +46,10 @@ public class AlibabaProdPageProcessor implements PageProcessor, BasePageProcesso
         options.addArguments("headless", "disable-gpu");
     }
 
-    {
-        //创建驱动
-        driver = new ChromeDriver(options);
-    }
-
     @Override
     public void process(Page page) {
+        //创建谷歌浏览器驱动
+        ChromeDriver driver = new ChromeDriver(options);
         String url = page.getUrl().get();
         //打开URL
         driver.get(url);
@@ -69,55 +65,52 @@ public class AlibabaProdPageProcessor implements PageProcessor, BasePageProcesso
         if (url.startsWith(DETAIL_DOMAIN)) { //判断是否为详情页
 
             //商品编号
-            //String prodNum = URLUtil.resolve(page.getUrl().toString()).getValue("id");
+            String prodNum = URLUtil.resolve(page.getUrl().toString()).getValue("prodNum");
             //商品名称
+            //*[@id="mod-detail-title"]/h1
             String prodName = html.xpath("//*[@id='mod-detail-title']/h1/text()").get();
             //商品价格
             String prodPrice = URLUtil.resolve(page.getUrl().toString()).getValue("prodPrice");
             //店铺名称
             String storeName = URLUtil.resolve(page.getUrl().toString()).getValue("storeName");
-            //System.out.println(prodNum);
+            System.out.println(prodNum);
             System.out.println(prodName);
             System.out.println(prodPrice);
             System.out.println(storeName);
 
-            /*//商品属性
-            List<Selectable> prodAttrs = html.xpath("//*div[@id='choose-attrs']/div[@class='li p-choose']").nodes();
-            if (prodAttrs != null && prodAttrs.size() > 0) {
-                for (Selectable prodAttr : prodAttrs) {
-                    System.out.println(prodAttr.xpath("//div[@class='dt']/text()").get() + "：" + prodAttr.xpath("//div[@class='dd']/div[@class='item']/@data-value").all());
+            //商品属性
+            //obj-leading
+            Selectable leading = html.xpath("//div[@class='d-content']/div[@class='obj-leading']");
+            if (leading != null && !StringUtils.isEmpty(leading.get())) {
+                System.out.println(leading.xpath("//div[@class='obj-header']/span/text()").get() + "：" + leading.xpath("//div[@class='obj-content']/ul/li/div/a/span/text()").all());
+            }
+            //obj-sku
+            Selectable sku = html.xpath("//div[@class='d-content']/div[@class='obj-sku']");
+            if (sku != null && !StringUtils.isEmpty(sku.get())) {
+                //这里判断属性值显示的是文本还是图片，问题则直接取文本，否则取span标签的title属性
+                if (!StringUtils.isEmpty(sku.xpath("//div[@class='obj-content']/table/tbody/tr[1]/td[1]/span/text()").get())) {
+                    System.out.println(sku.xpath("//div[@class='obj-header']/span/text()").get() + "：" + sku.xpath("//div[@class='obj-content']/table/tbody/tr/td[1]/span/text()").all());
+                } else {
+                    System.out.println(sku.xpath("//div[@class='obj-header']/span/text()").get() + "：" + sku.xpath("//div[@class='obj-content']/table/tbody/tr/td[1]/span/@title").all());
                 }
-            }
-
-            //购买方式
-            Selectable prodType = html.xpath("//div[@id='choose-type']");
-            String prodTypeStyle = html.xpath("//div[@id='choose-type']/@style").get();
-            if (prodType != null && prodTypeStyle != null && !prodTypeStyle.contains("display:none")) {
-                System.out.println(prodType.xpath("//div[@class='dt']/text()").get() + "：" + prodType.xpath("//div[@class='dd']/div[@class='item']/a/text()").all());
-            }
-
-            //优惠套装
-            Selectable prodSuit = html.xpath("//div[@id='choose-suits']");
-            String prodSuitStyle = html.xpath("//div[@id='choose-suits']/@style").get();
-            if (prodSuit != null && prodSuitStyle != null && !prodSuitStyle.contains("display:none")) {
-                System.out.println(prodSuit.xpath("//div[@class='dt']/text()").get() + "：" + prodSuit.xpath("//div[@class='dd']/div[@class='item']/a/text()").all());
             }
 
             //商品图片
             //缩略图
-            List<String> thumb = html.xpath("//*[@id='spec-list']/ul/li/img/@src").all();
+            List<String> thumb = html.xpath("//div[@id='dt-tab']/div/ul/li/div/a/img/@src").all();
             System.out.println("缩略图片：" + thumb);
             //标准图片
             List<String> img = thumb.parallelStream()
-                    .map(str -> str.replace("n5", "n1").replace("s54x54_jfs", "s450x450_jfs")).collect(Collectors.toList());
+                    .map(str -> str.replace("60x60", "400x400")).collect(Collectors.toList());
             System.out.println("标准图片：" + img);
             //放大图片
             List<String> bigImg = thumb.parallelStream()
-                    .map(str -> str.replace("n5", "n0").replace("s54x54_jfs", "jfs")).collect(Collectors.toList());
+                    .map(str -> str.replace(".60x60", "")).collect(Collectors.toList());
             System.out.println("放大图片：" + bigImg);
+
             //详情图片
-            List<String> detail = html.xpath("//*[@id='J-detail-content']//img/@data-lazyload").all();
-            System.out.println("详情图片：" + detail);*/
+            String detailUrl = html.xpath("//div[@id='mod-detail-description']/div[1]/div[1]/@data-tfs-url").get();
+            System.out.println("详情图片：" + detailUrl);
 
             System.out.println();
 
@@ -134,17 +127,17 @@ public class AlibabaProdPageProcessor implements PageProcessor, BasePageProcesso
                     if (!detailUrl.startsWith("https:")) {
                         detailUrl = "https:" + detailUrl;
                     }
-                    if(this.current < this.size){
+                    if (this.current < this.size) {
                         current += 1;
-                        if(detailUrl.contains("html?")){
-                            page.addTargetRequest(detailUrl + "&prodPrice=" + prodPrices.get(i) + "&storeName=" + storeNames.get(i) + "&storeName=" + prodNums.get(i));
-                        }else {
-                            page.addTargetRequest(detailUrl + "?prodPrice=" + prodPrices.get(i) + "&storeName=" + storeNames.get(i) + "&storeName=" + prodNums.get(i));
+                        if (detailUrl.contains("html?")) {
+                            page.addTargetRequest(detailUrl + "&prodPrice=" + prodPrices.get(i) + "&storeName=" + storeNames.get(i) + "&prodNum=" + prodNums.get(i));
+                        } else {
+                            page.addTargetRequest(detailUrl + "?prodPrice=" + prodPrices.get(i) + "&storeName=" + storeNames.get(i) + "&prodNum=" + prodNums.get(i));
                         }
                     }
                 }
                 //判断是否爬取了目标数量，否则开启下一页爬取
-                if(current < this.size){
+                if (current < this.size) {
                     //获取当前页码
                     int pageNum = Integer.valueOf(URLUtil.resolve(page.getUrl().toString()).getValue("beginPage"));
                     //最大爬取100页数据，“pageNum + 1” 是根据阿里巴巴分页算法得出
@@ -154,6 +147,7 @@ public class AlibabaProdPageProcessor implements PageProcessor, BasePageProcesso
                 }
             }
         }
+        driver.quit();
 
     }
 
@@ -198,7 +192,6 @@ public class AlibabaProdPageProcessor implements PageProcessor, BasePageProcesso
                 .addUrl(TARGET_URL.replace("#KEYWORD", this.keyWord).replace("#PAGE", String.valueOf(1)))
                 .thread(6)
                 .run();
-        driver.quit();
         return current;
     }
 

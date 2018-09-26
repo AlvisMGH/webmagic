@@ -37,8 +37,6 @@ public class TmProdPageProcessor implements PageProcessor, BasePageProcessor {
     private String keyWord;
     //谷歌浏览器参数
     private static ChromeOptions options;
-    //谷歌浏览器驱动
-    private ChromeDriver driver;
     //当前数量
     private long current;
     //爬取数量
@@ -50,13 +48,10 @@ public class TmProdPageProcessor implements PageProcessor, BasePageProcessor {
         options.addArguments("headless", "disable-gpu");
     }
 
-    {
-        //创建驱动
-        driver = new ChromeDriver(options);
-    }
-
     @Override
     public void process(Page page) {
+        //创建谷歌浏览器驱动
+        ChromeDriver driver = new ChromeDriver(options);
         String url = page.getUrl().get();
         //打开URL
         driver.get(url);
@@ -112,9 +107,15 @@ public class TmProdPageProcessor implements PageProcessor, BasePageProcessor {
             System.out.println();
 
         } else if (url.startsWith(SEARCH_DOMAIN)) { //判断是否为搜索页
-            List<String> detailUrls = html.xpath("//*[@id='J_ItemList']/div/div/*[@class='productTitle']/a[1]/@href").all();
+            System.out.println(driver.getPageSource());
+            //*[@id="J_ItemList"]/div[1]/div/div[3]/a
+            //*[@id="J_ItemList"]/div[3]/div/div[3]/a[1]
+            //*[@id="J_ItemList"]/div[4]/div/div[3]/a
+            //*[@id="J_ItemList"]/div[5]/div/div[3]/a[1]
+            List<String> detailUrls = html.xpath("//*[@id='J_ItemList']/div/div/*[@class='productImg-wrap']/a/@href").all();
             List<String> prodPrices = html.xpath("//*[@id='J_ItemList']/div/div/*[@class='productPrice']/em/text()").all();
             List<String> storeNames = html.xpath("//*[@id='J_ItemList']/div/div/*[@class='productShop']/a/text()").all();
+            System.out.println("detailUrl:" + detailUrls.size());
             if (detailUrls != null && detailUrls.size() > 0) {
                 //先将详情加入到待爬取列表中
                 String detailUrl;
@@ -139,7 +140,7 @@ public class TmProdPageProcessor implements PageProcessor, BasePageProcessor {
                 }
             }
         }
-
+        driver.quit();
     }
 
     @Override
@@ -148,7 +149,8 @@ public class TmProdPageProcessor implements PageProcessor, BasePageProcessor {
                 .setRetryTimes(10)
                 .setSleepTime(100)
                 .setTimeOut(10000)
-                .setUserAgent(UserAgentSupport.random());
+                .setUserAgent(UserAgentSupport.random())
+                .setDisableCookieManagement(true);
     }
 
     /**
@@ -181,9 +183,8 @@ public class TmProdPageProcessor implements PageProcessor, BasePageProcessor {
     public long run() {
         Spider.create(this)
                 .addUrl(TARGET_URL.replace("#Q", this.keyWord).replace("#S", String.valueOf(0)))
-                .thread(1)
+                .thread(5)
                 .run();
-        driver.quit();
         return current;
     }
 
