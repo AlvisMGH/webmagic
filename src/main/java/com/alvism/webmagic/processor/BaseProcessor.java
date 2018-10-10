@@ -1,6 +1,6 @@
 package com.alvism.webmagic.processor;
 
-public interface BasePageProcessor {
+public interface BaseProcessor {
 
     long run();
 

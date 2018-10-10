@@ -1,10 +1,9 @@
 package com.alvism.webmagic.runner;
 
-import com.alvism.webmagic.processor.TmProdPageProcessor;
+import com.alvism.webmagic.processor.TmProdProcessor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
-import org.springframework.stereotype.Component;
 
 import java.time.Clock;
 import java.time.LocalDateTime;
@@ -57,7 +56,7 @@ public class TmProdRunner implements ApplicationRunner {
         long begin = Clock.systemUTC().millis();
         log.info("开始时间为：" + LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
         for(String keyWord : keyWords){
-            size += TmProdPageProcessor.init(keyWord, 100).run();
+            size += TmProdProcessor.init(keyWord, 100).run();
         }
         long end = Clock.systemUTC().millis();
         log.info("爬取结束：{}，共{}条数据，消耗{}秒", LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")), size, (end - begin) / 1000);
