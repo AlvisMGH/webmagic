@@ -22,14 +22,14 @@ import java.util.stream.Collectors;
  * Linux操作系统默认加载“/usr/bin/chromedriver.sh”
  */
 @Slf4j
-public class TmProdProcessor implements PageProcessor, BaseProcessor {
+public class TmMProdProcessor implements PageProcessor, BaseProcessor {
 
     //搜索域名
     private static final String SEARCH_DOMAIN = "https://list.tmall.com/";
     //详情域名（天猫）
     private static final String DETAIL_DOMAIN = "https://detail.tmall.com/";
     //目标URL
-    private static final String TARGET_URL = "https://list.tmall.com/search_product.htm?type=p&q=#Q&s=#S";
+    private static final String TARGET_URL = "https://list.tmall.com/search_product.htm?type=p&q=#Q&page_no=#PAGE_NO";
     //关键字
     private String keyWord;
     //谷歌浏览器参数
@@ -42,7 +42,8 @@ public class TmProdProcessor implements PageProcessor, BaseProcessor {
     static {
         //设置无头模式
         options = new ChromeOptions();
-        options.addArguments("headless", "disable-gpu");
+        //options.addArguments("headless", "disable-gpu");
+        options.addArguments("User-Agent=\"Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/69.0.3497.100 Mobile Safari/537.36\"");
     }
 
     @Override
@@ -104,11 +105,8 @@ public class TmProdProcessor implements PageProcessor, BaseProcessor {
             System.out.println();
 
         } else if (url.startsWith(SEARCH_DOMAIN)) { //判断是否为搜索页
-            System.out.println(driver.getPageSource());
-            //*[@id="J_ItemList"]/div[1]/div/div[3]/a
-            //*[@id="J_ItemList"]/div[3]/div/div[3]/a[1]
-            //*[@id="J_ItemList"]/div[4]/div/div[3]/a
-            //*[@id="J_ItemList"]/div[5]/div/div[3]/a[1]
+            System.out.println(html.get());
+            /*System.out.println(driver.getPageSource());
             List<String> detailUrls = html.xpath("//*[@id='J_ItemList']/div/div/*[@class='productImg-wrap']/a/@href").all();
             List<String> prodPrices = html.xpath("//*[@id='J_ItemList']/div/div/*[@class='productPrice']/em/text()").all();
             List<String> storeNames = html.xpath("//*[@id='J_ItemList']/div/div/*[@class='productShop']/a/text()").all();
@@ -134,7 +132,7 @@ public class TmProdProcessor implements PageProcessor, BaseProcessor {
                         page.addTargetRequest(TARGET_URL.replace("#Q", this.keyWord).replace("#S", String.valueOf(offset + 60)));
                     }
                 }
-            }
+            }*/
         }
         driver.quit();
     }
@@ -155,7 +153,7 @@ public class TmProdProcessor implements PageProcessor, BaseProcessor {
      * @param keyWord
      * @return
      */
-    public static TmProdProcessor init(String keyWord) {
+    public static TmMProdProcessor init(String keyWord) {
         return init(keyWord, 100);
     }
 
@@ -165,8 +163,8 @@ public class TmProdProcessor implements PageProcessor, BaseProcessor {
      * @param keyWord
      * @return
      */
-    public static TmProdProcessor init(String keyWord, long size) {
-        TmProdProcessor processor = new TmProdProcessor();
+    public static TmMProdProcessor init(String keyWord, long size) {
+        TmMProdProcessor processor = new TmMProdProcessor();
         processor.keyWord = keyWord;
         processor.size = size;
         return processor;
@@ -178,7 +176,7 @@ public class TmProdProcessor implements PageProcessor, BaseProcessor {
     @Override
     public long run() {
         Spider.create(this)
-                .addUrl(TARGET_URL.replace("#Q", this.keyWord).replace("#S", String.valueOf(0)))
+                .addUrl(TARGET_URL.replace("#Q", this.keyWord).replace("#PAGE_NO", String.valueOf(2)))
                 .thread(5)
                 .run();
         return current;

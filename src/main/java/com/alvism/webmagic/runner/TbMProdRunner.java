@@ -1,6 +1,6 @@
 package com.alvism.webmagic.runner;
 
-import com.alvism.webmagic.processor.TbProdProcessor;
+import com.alvism.webmagic.processor.TbMProdProcessor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
@@ -13,8 +13,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Slf4j
-//@Component
-public class TbProdRunner implements ApplicationRunner {
+@Component
+public class TbMProdRunner implements ApplicationRunner {
 
     @Override
     public void run(ApplicationArguments args) throws Exception {
@@ -53,11 +53,11 @@ public class TbProdRunner implements ApplicationRunner {
 
         long size = 0;
 
-        log.info("开始爬取淘宝商品列表数据...");
+        log.info("开始爬取手机淘宝商品列表数据...");
         long begin = Clock.systemUTC().millis();
         log.info("开始时间为：" + LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
         for(String keyWord : keyWords){
-            size += TbProdProcessor.init(keyWord, 100).run();
+            size += TbMProdProcessor.init(keyWord, 100).run();
         }
         long end = Clock.systemUTC().millis();
         log.info("爬取结束：{}，共{}条数据，消耗{}秒", LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")), size, (end - begin) / 1000);

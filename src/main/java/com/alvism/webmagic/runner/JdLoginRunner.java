@@ -11,7 +11,7 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
 @Slf4j
-@Component
+//@Component
 public class JdLoginRunner implements ApplicationRunner {
 
     @Override
